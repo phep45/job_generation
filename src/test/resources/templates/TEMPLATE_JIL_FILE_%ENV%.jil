@@ -1,0 +1,3 @@
+name: EVEN_MORE_IMPORTANT_JOB_${ENV}
+machine: ${MACHINE}
+sandwich: salami_and_tomato

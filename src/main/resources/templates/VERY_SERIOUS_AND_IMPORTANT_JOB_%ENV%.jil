@@ -1,0 +1,7 @@
+VERY_SERIOUS_AND_IMPORTANT_JOB_${ENV}
+
+name:VERY_SERIOUS_AND_IMPORTANT_JOB_${ENV}
+property: very_important_property
+location: much_secret
+machine: ${MACHINE}
+task: so_not_obvious
