@@ -1,4 +1,4 @@
-package autosys.generator;
+package com.luxoft.autosys.generator;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
