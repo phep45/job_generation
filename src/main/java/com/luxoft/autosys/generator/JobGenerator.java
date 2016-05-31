@@ -32,7 +32,7 @@ public class JobGenerator extends AbstractMojo {
     private static final String SEPARATOR = "/";
     private static final String PROPERTIES_EXTENSION = ".properties";
 
-    private static final String DEFAULT_APPLICATION_PROPERTIES = "default.properties";
+    private static final String DEFAULT_APPLICATION_PROPERTIES = "src/main/resources/default.properties";
     private static final String PROPERTIES_SRC = "PROPERTIES_SRC";
     private static final String TEMPLATES_SRC = "TEMPLATES_SRC";
     private static final String OUTPUT_DIR = "FILES_DST";
