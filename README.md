@@ -18,6 +18,7 @@ when using custom configuration:
                     <goal>jils-plg</goal>
                 </goals>
                 <configuration>
+                    <!-- all three tags are required -->
                     <propertiesDirPath>src/main/resources/properties</propertiesDirPath>
                     <outputDirPath>target/jils</outputDirPath>
                     <templatesDirPath>src/main/resources/templates</templatesDirPath>
@@ -57,3 +58,18 @@ property file:
 <code>PROPERTIES_SRC=src/main/resources/properties</code></br>
 <code>TEMPLATES_SRC=src/main/resources/templates</code></br>
 <code>FILES_DST=target/jils</code></br>
+
+NOTE:
+
+```xml
+<defaultProperties>
+```
+Have priority over:
+
+```xml
+<propertiesDirPath>
+<outputDirPath>
+<templatesDirPath>
+```
+
+when both are used.
