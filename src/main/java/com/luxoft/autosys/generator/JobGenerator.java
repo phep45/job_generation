@@ -1,5 +1,6 @@
 package com.luxoft.autosys.generator;
 
+import com.google.common.base.Preconditions;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
@@ -15,6 +16,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * This goal will generate jil files.
@@ -43,6 +45,7 @@ public class JobGenerator extends AbstractMojo {
      * Path to jils properties directory.
      *
      * @parameter
+     *
      */
     private String propertiesDirPath;
 
@@ -70,6 +73,10 @@ public class JobGenerator extends AbstractMojo {
     private String defaultProperties = "";
 
     public void generateJobs(String propertiesDirPath, String templatesDirPath, String outputDir) {
+        Preconditions.checkArgument(isNotBlank(propertiesDirPath), "propertiesDirPath should not be empty");
+        Preconditions.checkArgument(isNotBlank(templatesDirPath), "templatesDirPath should not be empty");
+        Preconditions.checkArgument(isNotBlank(outputDir), "outputDirPath should not be empty");
+
         File autosysPropertiesDir = new File(propertiesDirPath);
         File templatesDir = new File(templatesDirPath);
 
@@ -119,7 +126,7 @@ public class JobGenerator extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        if (StringUtils.isNotBlank(defaultProperties)) {
+        if (isNotBlank(defaultProperties)) {
             LOG.info("Executing mojo with property file: {}", defaultProperties);
             generateJobs(defaultProperties);
         } else {
