@@ -54,6 +54,6 @@ when using property file with configuration:
 property file:
 
 
-<code>PROPERTIES_SRC=src/main/resources/properties</code>
-<code>TEMPLATES_SRC=src/main/resources/templates</code>
-<code>FILES_DST=target/jils</code>
+<code>PROPERTIES_SRC=src/main/resources/properties</code></br>
+<code>TEMPLATES_SRC=src/main/resources/templates</code></br>
+<code>FILES_DST=target/jils</code></br>
