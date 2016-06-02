@@ -1,7 +1,7 @@
 # job_generation
 Maven plugin for automatic generation autosys jobs
 
-EXAMPLES:
+<h3>EXAMPLES:</h3>
 
 when using custom configuration:
 
@@ -53,6 +53,6 @@ when using property file with configuration:
 
 property file:
 
-PROPERTIES_SRC=src/main/resources/properties
-TEMPLATES_SRC=src/main/resources/templates
-FILES_DST=target/jils
+PROPERTIES_SRC=src/main/resources/properties</br>
+TEMPLATES_SRC=src/main/resources/templates</br>
+FILES_DST=target/jils</br>
