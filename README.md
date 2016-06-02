@@ -53,6 +53,8 @@ when using property file with configuration:
 
 property file:
 
-PROPERTIES_SRC=src/main/resources/properties</br>
-TEMPLATES_SRC=src/main/resources/templates</br>
-FILES_DST=target/jils</br>
+<code>
+PROPERTIES_SRC=src/main/resources/properties
+TEMPLATES_SRC=src/main/resources/templates
+FILES_DST=target/jils
+</code>
