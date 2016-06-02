@@ -34,7 +34,6 @@ public class JobGeneratorTest {
 
     private JobGenerator jobGenerator;
 
-
     @Before
     public void setUp() {
         jobGenerator = new JobGenerator();

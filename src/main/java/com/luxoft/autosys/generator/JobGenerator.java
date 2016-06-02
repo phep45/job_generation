@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+
 /**
  * This goal will generate jil files.
  *
@@ -27,14 +29,15 @@ public class JobGenerator extends AbstractMojo {
     private static final String ENVIRONMENT = "ENV";
     private static final String PLACEHOLDER_BEGIN = "\\$\\{";
     private static final String PLACEHOLDER_END = "\\}";
-    private static final String ENV_AND_EXTENSION = "\\%ENV\\%\\.jil";
     private static final String JIL_EXTENSION = ".jil";
     private static final String SEPARATOR = "/";
     private static final String PROPERTIES_EXTENSION = ".properties";
-
     private static final String PROPERTIES_SRC = "PROPERTIES_SRC";
     private static final String TEMPLATES_SRC = "TEMPLATES_SRC";
     private static final String OUTPUT_DIR = "FILES_DST";
+    private static final String ENV = "\\%ENV\\%";
+    private static final String LAST_UNDERSCORE = "_$";
+    private static final String UNDERSCORE = "_";
 
     /**
      * Path to jils properties directory.
@@ -109,7 +112,8 @@ public class JobGenerator extends AbstractMojo {
             }
         }
 
-        File outputFile = new File(outputDir + SEPARATOR + environment.toLowerCase() + SEPARATOR + templateFile.getName().replaceAll(ENV_AND_EXTENSION, "") + environment + JIL_EXTENSION);
+        String pathname = outputDir + SEPARATOR + environment.toLowerCase() + SEPARATOR + templateFile.getName().replaceAll(ENV, EMPTY).replaceAll(JIL_EXTENSION, EMPTY).replaceAll(LAST_UNDERSCORE, EMPTY) + UNDERSCORE + environment + JIL_EXTENSION;
+        File outputFile = new File(pathname);
         FileUtils.writeStringToFile(outputFile, templateFileString);
     }
 
