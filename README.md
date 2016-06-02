@@ -5,6 +5,7 @@ EXAMPLES:
 
 when using custom configuration:
 
+```xml
 <plugins>
     <plugin>
         <groupId>com.luxoft</groupId>
@@ -25,10 +26,11 @@ when using custom configuration:
         </executions>
     </plugin>
 </plugins>
-
+```
 
 when using property file with configuration:
 
+```xml
 <plugins>
     <plugin>
         <groupId>com.luxoft</groupId>
@@ -47,6 +49,7 @@ when using property file with configuration:
         </executions>
     </plugin>
 </plugins>
+```
 
 property file:
 
