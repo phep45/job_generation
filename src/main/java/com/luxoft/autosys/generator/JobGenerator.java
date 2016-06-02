@@ -1,7 +1,7 @@
 package com.luxoft.autosys.generator;
 
-import com.google.common.base.Preconditions;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -14,12 +14,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import static org.apache.commons.lang3.StringUtils.EMPTY;
-
 /**
  * This goal will generate jil files.
  *
- * @goal jils-generator
+ * Pawel Rosner
+ *
+ * @goal jils-plg
  */
 public class JobGenerator extends AbstractMojo {
     private static final Logger LOG = LoggerFactory.getLogger(JobGenerator.class);
@@ -32,33 +32,53 @@ public class JobGenerator extends AbstractMojo {
     private static final String SEPARATOR = "/";
     private static final String PROPERTIES_EXTENSION = ".properties";
 
-    private static final String DEFAULT_APPLICATION_PROPERTIES = "src/main/resources/default.properties";
     private static final String PROPERTIES_SRC = "PROPERTIES_SRC";
     private static final String TEMPLATES_SRC = "TEMPLATES_SRC";
     private static final String OUTPUT_DIR = "FILES_DST";
 
-    private File autosysPropertiesDir;
-    private File templatesDir;
-    private String outputDir;
+    /**
+     * Path to jils properties directory.
+     *
+     * @parameter
+     */
+    private String propertiesDirPath;
 
-    public JobGenerator() {
-    }
 
-    public JobGenerator(String propertiesDir, String templatesDir, String outputDir) {
-        this.autosysPropertiesDir = new File(propertiesDir);
-        this.templatesDir = new File(templatesDir);
-        this.outputDir = outputDir;
+    /**
+     * Path to jils templates directory.
+     *
+     * @parameter
+     */
+    private String templatesDirPath;
 
-        Preconditions.checkArgument(autosysPropertiesDir.isDirectory(), "propertiesDir is not a directory");
-        Preconditions.checkArgument(this.templatesDir.isDirectory(), "templatesDir is not a directory");
-    }
 
-    public void generateJobs() {
+    /**
+     * Path to output directory for created jils.
+     *
+     * @parameter
+     */
+    private String outputDirPath;
+
+    /**
+     * Path to default properties.
+     *
+     * @parameter
+     */
+    private String defaultProperties = "";
+
+    public void generateJobs(String propertiesDirPath, String templatesDirPath, String outputDir) {
+        File autosysPropertiesDir = new File(propertiesDirPath);
+        File templatesDir = new File(templatesDirPath);
+
+        if(isDirEmpty(autosysPropertiesDir, templatesDir)) {
+            return;
+        }
+
         for (File property : autosysPropertiesDir.listFiles((dir, name) -> name.toLowerCase().endsWith(PROPERTIES_EXTENSION))) {
             for (File template : templatesDir.listFiles((dir, name) -> name.toLowerCase().endsWith(JIL_EXTENSION))) {
                 try {
 
-                    generate(property, template);
+                    generate(property, template, outputDir);
 
                 } catch (IOException e) {
                     LOG.error("Could not read file.", e);
@@ -68,7 +88,12 @@ public class JobGenerator extends AbstractMojo {
         LOG.info("Job files created in: {}", outputDir);
     }
 
-    private void generate(File propertyFile, File templateFile) throws IOException {
+    public void generateJobs(String propertyFile) {
+        initWithApplicationProperties(propertyFile);
+        generateJobs(propertiesDirPath, templatesDirPath, outputDirPath);
+    }
+
+    private void generate(File propertyFile, File templateFile, String outputDir) throws IOException {
         LOG.debug("Generating jil for property file: {}, template file: {}", propertyFile.getName(), templateFile.getName());
 
         Properties properties = new Properties();
@@ -90,63 +115,37 @@ public class JobGenerator extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        if (StringUtils.isNotBlank(defaultProperties)) {
+            LOG.info("Executing mojo with property file: {}", defaultProperties);
+            generateJobs(defaultProperties);
+        } else {
+            LOG.info("Executing mojo with configuration");
+            generateJobs(propertiesDirPath, templatesDirPath, outputDirPath);
+        }
+    }
+
+    private void initWithApplicationProperties(String defaultProperties) {
         Properties applicationProperties = new Properties();
-        try (InputStream input = new FileInputStream(new File(DEFAULT_APPLICATION_PROPERTIES))) {
+        try (InputStream input = new FileInputStream(new File(defaultProperties))) {
             applicationProperties.load(input);
 
-            this.autosysPropertiesDir = new File(applicationProperties.getProperty("PROPERTIES_SRC"));
-            this.templatesDir = new File(applicationProperties.getProperty("TEMPLATES_SRC"));
-            this.outputDir = applicationProperties.getProperty("FILES_DST");
+            propertiesDirPath = applicationProperties.getProperty(PROPERTIES_SRC);
+            templatesDirPath = applicationProperties.getProperty(TEMPLATES_SRC);
+            outputDirPath = applicationProperties.getProperty(OUTPUT_DIR);
 
         } catch (IOException e) {
             LOG.error("Could not read default application property file.", e);
         }
-
-        generateJobs();
     }
 
-    public static void main(String[] args) {
-        String propertiesSrc = "";
-        String templatesSrc = "";
-        String outputDst = "";
-
-        if (hasThreeParameters(args)) {
-            propertiesSrc = args[0];
-            templatesSrc = args[1];
-            outputDst = args[2];
-        } else if (hasNoParameters(args)) {
-            Properties applicationProperties = new Properties();
-            try (InputStream input = new FileInputStream(new File(DEFAULT_APPLICATION_PROPERTIES))) {
-                applicationProperties.load(input);
-
-                propertiesSrc = applicationProperties.getProperty(PROPERTIES_SRC);
-                templatesSrc = applicationProperties.getProperty(TEMPLATES_SRC);
-                outputDst = applicationProperties.getProperty(OUTPUT_DIR);
-
-            } catch (IOException e) {
-                LOG.error("Could not read default application property file.", e);
+    private boolean isDirEmpty(File ... dirs) {
+        for(File f : dirs) {
+            if(f.list() == null || f.list().length == 0) {
+                LOG.warn("Directory {} is empty or does not exist. NO files will be generated.", f.getAbsolutePath());
+                return true;
             }
-        } else {
-            LOG.info("Usage: JobGenerator [properties-src-dir] [templates-src-dir] [output-dst-dir] OR no arguments for default properties");
-            return;
         }
-
-        if (EMPTY.equals(propertiesSrc) || EMPTY.equals(templatesSrc) || EMPTY.equals(outputDst)) {
-            LOG.error("Invalid directory path");
-            return;
-        }
-
-
-        new JobGenerator(propertiesSrc, templatesSrc, outputDst).generateJobs();
+        return false;
     }
-
-    private static boolean hasNoParameters(String[] args) {
-        return args.length == 0;
-    }
-
-    private static boolean hasThreeParameters(String[] args) {
-        return args.length == 3;
-    }
-
 
 }
