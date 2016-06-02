@@ -2,7 +2,6 @@ package com.luxoft.autosys.generator;
 
 import com.google.common.base.Preconditions;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -70,7 +69,7 @@ public class JobGenerator extends AbstractMojo {
      *
      * @parameter
      */
-    private String defaultProperties = "";
+    private String defaultProperties = EMPTY;
 
     public void generateJobs(String propertiesDirPath, String templatesDirPath, String outputDir) {
         Preconditions.checkArgument(isNotBlank(propertiesDirPath), "propertiesDirPath should not be empty");
