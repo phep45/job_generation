@@ -1,6 +1,7 @@
 package com.luxoft.autosys.generator;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.junit.After;
@@ -12,6 +13,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.io.File;
 import java.io.IOException;
 
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.isNull;
@@ -95,6 +97,21 @@ public class JobGeneratorTest {
         File outputDirectory = new File(OUTPUT_DIR);
 
         assertThat(outputDirectory.list(), is(isNull()));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldNotAllowEmptyPropertiesDirPath() {
+        jobGenerator.generateJobs(EMPTY, TEMPLATES_SRC_DIR, OUTPUT_DIR);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldNotAllowEmptyTemplatesDirPath() {
+        jobGenerator.generateJobs(PROPERTIES_SRC_DIR, EMPTY, OUTPUT_DIR);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldNotAllowEmptyOutputDirPath() {
+        jobGenerator.generateJobs(PROPERTIES_SRC_DIR, TEMPLATES_SRC_DIR, EMPTY);
     }
 
     @After
