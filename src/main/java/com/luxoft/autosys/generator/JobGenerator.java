@@ -74,6 +74,8 @@ public class JobGenerator extends AbstractMojo {
      */
     private String defaultProperties = EMPTY;
 
+    private Injector injector = new Injector();
+
     public void generateJobs(String propertiesDirPath, String templatesDirPath, String outputDir) {
         Preconditions.checkArgument(isNotBlank(propertiesDirPath), "propertiesDirPath should not be empty");
         Preconditions.checkArgument(isNotBlank(templatesDirPath), "templatesDirPath should not be empty");
@@ -111,14 +113,15 @@ public class JobGenerator extends AbstractMojo {
         Properties properties = new Properties();
         String templateFileString = FileUtils.readFileToString(templateFile);
 
+
         String environment;
 
         try (InputStream input = new FileInputStream(propertyFile)) {
             properties.load(input);
             environment = properties.getProperty(ENVIRONMENT);
-            for (String name : properties.stringPropertyNames()) {
-                templateFileString = templateFileString.replaceAll(PLACEHOLDER_BEGIN + name + PLACEHOLDER_END, properties.getProperty(name));
-            }
+
+            templateFileString = injector.inject(templateFileString, environment);
+            templateFileString = injector.inject(templateFileString, properties);
         }
 
         String relativePath = templateFile.getAbsolutePath().replaceFirst(NOT_RELATIVE_PATH, EMPTY).replaceAll(FILENAME, EMPTY);
