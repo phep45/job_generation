@@ -2,6 +2,7 @@ package com.luxoft.autosys.generator;
 
 import com.google.common.base.Preconditions;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -39,6 +40,8 @@ public class JobGenerator extends AbstractMojo {
     private static final String ENV = "\\%ENV\\%";
     private static final String LAST_UNDERSCORE = "_$";
     private static final String UNDERSCORE = "_";
+    private static final String NOT_RELATIVE_PATH = ".*\\\\templates";
+    private static final String FILENAME = "[\\w\\%]*\\.jil$";
 
     /**
      * Path to jils properties directory.
@@ -84,7 +87,7 @@ public class JobGenerator extends AbstractMojo {
         }
 
         for (File property : autosysPropertiesDir.listFiles((dir, name) -> name.toLowerCase().endsWith(PROPERTIES_EXTENSION))) {
-            for (File template : templatesDir.listFiles((dir, name) -> name.toLowerCase().endsWith(JIL_EXTENSION))) {
+            for (File template : FileUtils.listFiles(templatesDir, new JilFileFilter(), TrueFileFilter.INSTANCE)) {
                 try {
 
                     generate(property, template, outputDir);
@@ -118,7 +121,8 @@ public class JobGenerator extends AbstractMojo {
             }
         }
 
-        String pathname = outputDir + SEPARATOR + environment.toLowerCase() + SEPARATOR + templateFile.getName().replaceAll(ENV, EMPTY).replaceAll(JIL_EXTENSION, EMPTY).replaceAll(LAST_UNDERSCORE, EMPTY) + UNDERSCORE + environment + JIL_EXTENSION;
+        String relativePath = templateFile.getAbsolutePath().replaceFirst(NOT_RELATIVE_PATH, EMPTY).replaceAll(FILENAME, EMPTY);
+        String pathname = outputDir + relativePath + environment.toLowerCase() + SEPARATOR + templateFile.getName().replaceAll(ENV, EMPTY).replaceAll(JIL_EXTENSION, EMPTY).replaceAll(LAST_UNDERSCORE, EMPTY) + UNDERSCORE + environment + JIL_EXTENSION;
         File outputFile = new File(pathname);
         FileUtils.writeStringToFile(outputFile, templateFileString);
     }
