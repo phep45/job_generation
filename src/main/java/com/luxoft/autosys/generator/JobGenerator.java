@@ -119,7 +119,7 @@ public class JobGenerator extends AbstractMojo {
                 templateFileString = injector.inject(templateFileString, environment);
                 templateFileString = injector.inject(templateFileString, properties);
             } catch (IllegalStateException e) {
-                LOG.debug("Environment {} is not applicable for template {}. File will be omitted.", environment, templateFile.getName(), e);
+                LOG.debug("Environment {} is not applicable for template {}. File will be omitted.", environment, templateFile.getName());
                 return;
             }
         }
