@@ -1,0 +1,7 @@
+@test,@prod
+something ${ENV}
+
+@test,@prod <<{
+ohffsahfasdfhaw asofh asdhfaks
+aslfjakds {} {} ${MACHINE} > sdfj <{ >} {< @ ,
+sffds }>> sdfasdf
