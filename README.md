@@ -78,8 +78,10 @@ when both are used.
 
 @env,@env2 <- at first line of file indicate for which environments jil should be prepared
 
+```
 @env,@env2,@env3 <<{
 block of properties
 to be injected into
 indicated environments
-}
+}>>
+```
