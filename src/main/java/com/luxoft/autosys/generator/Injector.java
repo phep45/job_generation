@@ -6,19 +6,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Injector {
     private static final Logger LOG = LoggerFactory.getLogger(Injector.class);
 
-    private static final String BLOCK_REGEX = "(@\\w+,?){1,100}\\s<<\\{(?s).*[\\n\\r].*\\}>>";
-    private static final String BLOCK_PLACEHOLDER_BEGIN = "(@\\w{1,100},?){1,100} ?<<\\{[\\r\\n]{0,2}";
-    private static final String BLOCK_PLACEHOLDER_END = "\\}>>[\\r\\n]{0,2}";
+    private static final String BLOCK_REGEX = "(@\\w+,?){1,100}\\s<<\\{([\\w\\s:=-_$\\{\\}]*)\\}\\>\\>";
     private static final String DST_ENV_PLACEHOLDER = "@";
 
     private static final String PLACEHOLDER_BEGIN = "\\$\\{";
     private static final String PLACEHOLDER_END = "\\}";
     private static final String ENVIRONMENT_PRECONDITIONS = "^(@\\w{1,100},?)+";
+    private static final int BLOCK_CONTENT = 6;
+    private static final String DOLLAR_SIGN = "\\$";
+    private static final String TEMPORARY_VALUE = "//////DOLLAR//////SIGN//////STRING//////";
+    private static final String SLASH_AND_DOLLAR = "\\\\\\$";
+    private static final String BLOCK_REGEX_BEGIN = "(((@\\w{0,100},?){0,100})*";
+    private static final String BLOCK_REGEX_END = "((,@\\w{0,100},?){0,100})* ?\\<\\<\\{([\\w\\s:=-_$\\{\\}]*)\\}\\>\\>)";
 
     public String inject(String fileString, Properties properties) {
         String result = fileString;
@@ -31,8 +36,8 @@ public class Injector {
     }
 
     public String inject(String fileString, String environment) {
-        if(hasPreconditions(fileString)) {
-            if(hasProperEnvironment(fileString, environment)) {
+        if (hasPreconditions(fileString)) {
+            if (hasProperEnvironment(fileString, environment)) {
                 String str = cleanEnvironmentPreconditions(fileString);
                 return process(str, environment);
             } else {
@@ -48,17 +53,33 @@ public class Injector {
         if (hasBlock) {
             LOG.debug("Block detected");
             String dstEnvRegex = DST_ENV_PLACEHOLDER + environment.toLowerCase();
-            boolean isForThisEnvironment = Pattern.compile(dstEnvRegex).matcher(fileString).find();
-            if (isForThisEnvironment) {
+            String blockRegex = BLOCK_REGEX_BEGIN + dstEnvRegex + BLOCK_REGEX_END;
+            boolean isForThisEnvironment = Pattern.compile(blockRegex).matcher(fileString).find();
+
+            Matcher m = Pattern.compile(blockRegex).matcher(fileString);
+
+
+            if (isForThisEnvironment && m.find()) {
                 LOG.debug("Environments matches");
-                return fileString.replaceAll(BLOCK_PLACEHOLDER_BEGIN, StringUtils.EMPTY).replaceAll(BLOCK_PLACEHOLDER_END, StringUtils.EMPTY);
+                String contentOfBlock = getContentOfBlock(m);
+                return process(fileString.replaceFirst(blockRegex, contentOfBlock), environment);
             } else {
                 LOG.debug("Environments do NOT matches");
-                return fileString.replaceAll(BLOCK_REGEX, StringUtils.EMPTY);
+                String str = fileString.replaceFirst(BLOCK_REGEX, StringUtils.EMPTY);
+                return process(str, environment);
             }
         }
         LOG.debug("Block NOT detected");
         return fileString;
+    }
+
+    private String getContentOfBlock(Matcher m) {
+        String tmp = m.group(BLOCK_CONTENT);
+
+        //must be done because $ is part of regex syntax
+        tmp = tmp.replaceAll(DOLLAR_SIGN, TEMPORARY_VALUE);
+        tmp = tmp.replaceAll(TEMPORARY_VALUE, SLASH_AND_DOLLAR);
+        return tmp;
     }
 
 

@@ -1,0 +1,39 @@
+@qa,@dev,@prod,@dr
+VERY_SERIOUS_AND_IMPORTANT_JOB_${ENV}
+
+name:VERY_SERIOUS_AND_IMPORTANT_JOB_${ENV}
+@prod <<{
+PROD
+${MACHINE}
+{} >>>>>>>>>>>    >>>>>>
+}>>
+ALL1
+
+@qa <<{
+QA0
+${MACHINE}
+}>>
+
+@qa,@dev <<{
+QA1 DEV1 }>>
+
+ALL2
+
+@dev,@qa <<{
+DEV2 QA2 }>>
+
+ALL3
+
+@dr,@dev <<{
+
+DR1 DEV3
+
+}>>
+
+ALL4
+
+@dev <<{
+DEV4
+}>>
+
+ALL5
