@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 public class Injector {
     private static final Logger LOG = LoggerFactory.getLogger(Injector.class);
 
-    private static final String BLOCK_REGEX = "(@\\w+,?){1,100}\\s<<\\{([\\w\\s:=-_$\\{\\}]*)\\}\\>\\>";
+    private static final String BLOCK_REGEX = "(@\\w+,?){1,100}\\s<<\\{([\\w\\s:.,;\\/\\\\=-_$\\{\\}]*)\\}\\>\\>";
     private static final String DST_ENV_PLACEHOLDER = "@";
 
     private static final String PLACEHOLDER_BEGIN = "\\$\\{";
