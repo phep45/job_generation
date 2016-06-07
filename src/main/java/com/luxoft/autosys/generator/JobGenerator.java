@@ -20,7 +20,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * This goal will generate jil files.
- * <p>
+ *
  * Pawel Rosner
  *
  * @goal jils-plg
