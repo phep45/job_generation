@@ -12,8 +12,8 @@ public class Injector {
     private static final Logger LOG = LoggerFactory.getLogger(Injector.class);
 
     private static final String BLOCK_REGEX = "(@\\w+,?){1,100}\\s<<\\{(?s).*[\\n\\r].*\\}>>";
-    private static final String BLOCK_PLACEHOLDER_BEGIN = "(@\\w{1,100},?){1,100} ?<<\\{";
-    private static final String BLOCK_PLACEHOLDER_END = "\\}>>";
+    private static final String BLOCK_PLACEHOLDER_BEGIN = "(@\\w{1,100},?){1,100} ?<<\\{[\\r\\n]{0,2}";
+    private static final String BLOCK_PLACEHOLDER_END = "\\}>>[\\r\\n]{0,2}";
     private static final String DST_ENV_PLACEHOLDER = "@";
 
     private static final String PLACEHOLDER_BEGIN = "\\$\\{";
