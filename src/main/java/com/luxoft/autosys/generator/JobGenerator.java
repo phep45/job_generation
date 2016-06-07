@@ -20,7 +20,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * This goal will generate jil files.
- *
+ * <p>
  * Pawel Rosner
  *
  * @goal jils-plg
@@ -29,8 +29,6 @@ public class JobGenerator extends AbstractMojo {
     private static final Logger LOG = LoggerFactory.getLogger(JobGenerator.class);
 
     private static final String ENVIRONMENT = "ENV";
-    private static final String PLACEHOLDER_BEGIN = "\\$\\{";
-    private static final String PLACEHOLDER_END = "\\}";
     private static final String JIL_EXTENSION = ".jil";
     private static final String SEPARATOR = "/";
     private static final String PROPERTIES_EXTENSION = ".properties";
@@ -47,7 +45,6 @@ public class JobGenerator extends AbstractMojo {
      * Path to jils properties directory.
      *
      * @parameter
-     *
      */
     private String propertiesDirPath;
 
@@ -84,7 +81,7 @@ public class JobGenerator extends AbstractMojo {
         File autosysPropertiesDir = new File(propertiesDirPath);
         File templatesDir = new File(templatesDirPath);
 
-        if(isDirEmpty(autosysPropertiesDir, templatesDir)) {
+        if (isDirEmpty(autosysPropertiesDir, templatesDir)) {
             return;
         }
 
@@ -113,15 +110,18 @@ public class JobGenerator extends AbstractMojo {
         Properties properties = new Properties();
         String templateFileString = FileUtils.readFileToString(templateFile);
 
-
         String environment;
 
         try (InputStream input = new FileInputStream(propertyFile)) {
             properties.load(input);
             environment = properties.getProperty(ENVIRONMENT);
-
-            templateFileString = injector.inject(templateFileString, environment);
-            templateFileString = injector.inject(templateFileString, properties);
+            try {
+                templateFileString = injector.inject(templateFileString, environment);
+                templateFileString = injector.inject(templateFileString, properties);
+            } catch (IllegalStateException e) {
+                LOG.debug("Environment {} is not applicable for template {}. File will be omitted.", environment, templateFile.getName(), e);
+                return;
+            }
         }
 
         String relativePath = templateFile.getAbsolutePath().replaceFirst(NOT_RELATIVE_PATH, EMPTY).replaceAll(FILENAME, EMPTY);
@@ -155,9 +155,9 @@ public class JobGenerator extends AbstractMojo {
         }
     }
 
-    private boolean isDirEmpty(File ... dirs) {
-        for(File f : dirs) {
-            if(f.list() == null || f.list().length == 0) {
+    private boolean isDirEmpty(File... dirs) {
+        for (File f : dirs) {
+            if (f.list() == null || f.list().length == 0) {
                 LOG.warn("Directory {} is empty or does not exist. NO files will be generated.", f.getAbsolutePath());
                 return true;
             }

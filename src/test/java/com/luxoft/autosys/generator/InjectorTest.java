@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.fail;
 
 public class InjectorTest {
 
@@ -19,10 +20,13 @@ public class InjectorTest {
     private static final String FILE_WITH_NOT_INJECTABLE_ENV = "src/test/resources/templates/dir/inside/moreinside/evenmoreinside/WONT_INJECT_JOB.jil";
     private static final String EXPECTED_NO_INJECT = "src/test/resources/injector-res/NOT_INJECTED.jil";
     private static final String ENV = "TEST";
+    private static final String NOT_APPLICABLE_ENV = "ENV";
 
     private static final String PROPERTIES = "src/test/resources/properties/test.properties";
     private static final String TEMPLATE = "src/test/resources/templates/TEMPLATE_JIL_FILE.jil";
     private static final String EXPECTED_INJECTED_PROPERTIES = "src/test/resources/TEMPLATE_JIL_FILE_TEST.jil";
+
+    private static final String TEMPLATE_WITH_PRECONDITIONS = "src/test/resources/templates/TEMPLATE_WITH_PRECONDITIONS.jil";
 
     private Injector injector = new Injector();
 
@@ -61,6 +65,14 @@ public class InjectorTest {
         String actual = injector.inject(given, properties);
 
         Assert.assertThat(actual, is(expected));
+
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void shouldThrowException() throws IOException {
+        String given = FileUtils.readFileToString(new File(TEMPLATE_WITH_PRECONDITIONS));
+
+        injector.inject(given, NOT_APPLICABLE_ENV);
 
     }
 

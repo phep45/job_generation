@@ -18,6 +18,7 @@ public class Injector {
 
     private static final String PLACEHOLDER_BEGIN = "\\$\\{";
     private static final String PLACEHOLDER_END = "\\}";
+    private static final String ENVIRONMENT_PRECONDITIONS = "^(@\\w{1,100},?)+";
 
     public String inject(String fileString, Properties properties) {
         String result = fileString;
@@ -30,12 +31,25 @@ public class Injector {
     }
 
     public String inject(String fileString, String environment) {
+        if(hasPreconditions(fileString)) {
+            if(hasProperEnvironment(fileString, environment)) {
+                String str = cleanEnvironmentPreconditions(fileString);
+                return process(str, environment);
+            } else {
+                throw new IllegalStateException("Environment {} not applicable for this template file");
+            }
+        } else {
+            return process(fileString, environment);
+        }
+    }
+
+    private String process(String fileString, String environment) {
         boolean hasBlock = Pattern.compile(BLOCK_REGEX).matcher(fileString).reset().find();
-        if(hasBlock) {
+        if (hasBlock) {
             LOG.debug("Block detected");
             String dstEnvRegex = DST_ENV_PLACEHOLDER + environment.toLowerCase();
             boolean isForThisEnvironment = Pattern.compile(dstEnvRegex).matcher(fileString).find();
-            if(isForThisEnvironment) {
+            if (isForThisEnvironment) {
                 LOG.debug("Environments matches");
                 return fileString.replaceAll(BLOCK_PLACEHOLDER_BEGIN, StringUtils.EMPTY).replaceAll(BLOCK_PLACEHOLDER_END, StringUtils.EMPTY);
             } else {
@@ -45,5 +59,19 @@ public class Injector {
         }
         LOG.debug("Block NOT detected");
         return fileString;
+    }
+
+
+    private boolean hasPreconditions(String fileString) {
+        return Pattern.compile(ENVIRONMENT_PRECONDITIONS).matcher(fileString).find();
+    }
+
+    private boolean hasProperEnvironment(String fileString, String environment) {
+        String envRegex = DST_ENV_PLACEHOLDER + environment.toLowerCase();
+        return Pattern.compile(envRegex).matcher(fileString).find();
+    }
+
+    private String cleanEnvironmentPreconditions(String fileString) {
+        return fileString.replaceAll(ENVIRONMENT_PRECONDITIONS, StringUtils.EMPTY).replaceFirst("\r\n", StringUtils.EMPTY);
     }
 }
