@@ -36,7 +36,7 @@ public class Injector {
                 String str = cleanEnvironmentPreconditions(fileString);
                 return process(str, environment);
             } else {
-                throw new IllegalStateException("Environment {} not applicable for this template file");
+                throw new IllegalStateException("Environment " + environment + " not applicable for this template file");
             }
         } else {
             return process(fileString, environment);
